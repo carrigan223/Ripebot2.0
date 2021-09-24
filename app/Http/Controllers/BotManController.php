@@ -112,6 +112,10 @@ class BotManController extends Controller
    } elseif ($modifiedMessage == 'card') {
     $botman->reply($this->showCards($this->_products));
     $this->anythingElseQuestion($botman);
+   } elseif ($modifiedMessage == 'begin') {
+       $this->questionTemplateIntial($botman);
+       $this->initailGreeting($botman);
+    // $botman->reply('Welcome to Buzz, I\'m here to help you out, you can click above to head to some specific areas or tell me your name so i can better help find you great deals!');
    } elseif ($modifiedMessage == 'specials') {
     $this->specialsQuestionTemplate($botman);
    } elseif ($modifiedMessage == 'onboard') {
@@ -121,6 +125,9 @@ class BotManController extends Controller
     $this->questionTemplate($botman);
    } elseif ($modifiedMessage == 'name') {
     $this->askName($botman);
+   } elseif ($modifiedMessage == 'feedback') {
+    // $this->provideFeedback($botman);
+    $botman->reply('Give me feedback!');
    } elseif ($modifiedMessage == 'email response') {
     $userEmail = $botman->userStorage()->get('email');
 
@@ -169,11 +176,10 @@ class BotManController extends Controller
     $botman->reply("Awesome! Nice to meet you $userInfo");
     $botman->reply('What is your email?');
    } else {
-    $this->questionTemplateIntial($botman);
     $botman->reply($modifiedMessage);
+    $this->questionTemplateIntial($botman);
    }
   });
-  Log::info($this->_firstname);
 
   $botman->listen();
 
@@ -187,11 +193,13 @@ class BotManController extends Controller
    $question = Question::create('')
     ->callbackId('guide_buttons')
     ->addButtons([
-     Button::create('Hours')->value('hours'),
-     Button::create('Location')->value('location'),
-     Button::create('Feedback')->value('feedback'),
-     Button::create('Specials')->value('specials'),
-     Button::create('Menu')->value('card'),
+     Button::create('Current Deals')->value('hours'),
+     Button::create('Special Discounts')->value('location'),
+     Button::create('Menu')->value('feedback'),
+     Button::create('Hours + Location')->value('specials'),
+     Button::create('Contact Us')->value('card'),
+     Button::create('Something Else')->value('card'),
+
 
     ]);
    $botman->reply($question);
@@ -209,8 +217,10 @@ class BotManController extends Controller
     return 'buttons';
    } elseif ($message == 'card') {
     return 'card';
+   } elseif ($message == 'begin') {
+    return 'begin';
    } elseif ($message == 'feedback') {
-    return 'name';
+    return 'feedback';
    } elseif ($message == 'specials') {
     return 'specials';
    } elseif ($message == 'location') {
@@ -232,7 +242,7 @@ class BotManController extends Controller
    } else {
     $extras    = $botman->getMessage()->getExtras();
     $dfMessage = $botman->getMessage();
-    // Log::info(print_r($dfMessage, true));
+    Log::info(print_r($dfMessage, true));
     if (count($extras['apiParameters']) > 0) {
      if ($extras['apiIntent'] === 'get name') {
         $this->_firstname = $extras['apiParameters']['return'];
@@ -362,8 +372,11 @@ class BotManController extends Controller
    */
   public function provideFeedback($botman)
   {
-   $botman->ask('Thank you for taking the time to provide feedback, Please let us know how we did.', function (Answer $answer) {
+   $botman->ask('Thank you for taking the time to provide feedback, Please let us know how we did.', function (Answer $answer, $botman) {
     $feedback = $answer->getText();
+    $botman->userStorage()->save([
+        'feedback'=>$feedback
+    ]);
     $this->say($feedback);
    });
   }
@@ -406,9 +419,10 @@ class BotManController extends Controller
 
   public function initailGreeting($botman)
   {
-   $botman->typesAndWaits(1);
-   $botman->reply('Im here to start to make your experience with Buzz a little easier');
-   $botman->reply('Lets start with some of your info so I can better help you');
+   $botman->reply('Hi! Im Primetime here to make your experience with Buzz a little easier');
+   $botman->reply('Above are a few of my areas of expertise I can help you with');
+   $botman->reply('Lets start with some of your info so I can better help you!');
+   $botman->reply('Whats your name?');
 
   }
 
