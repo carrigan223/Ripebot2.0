@@ -569,10 +569,19 @@
     </body>
     <script>
         var botmanWidget = {
-            frameEndpoint: '/api/chatFrame',
-            chatServer: 'http://127.0.0.1:8000/botman'
+            chatServer: 'http://127.0.0.0:8000/botman',
+            // aboutText: 'this bot is testing controllers',
+            introMessage: "Welcome To Buzzbot heres a few ways I can help you!",
+            frameEndpoint: 'http://127.0.0.0:8000/api/chatFrame'
         };
     </script>
-    <script src='https://cdn.jsdelivr.net/npm/botman-web-widget@0/build/js/widget.js'></script>
+    <script>
+        const triggerBot = function() {
+            console.log("script is running")
+        botmanChatWidget.whisper('hello');
+       }
 
+    </script>
+
+    <script src='js/widget.js'></script>
 </html>
